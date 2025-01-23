@@ -103,6 +103,6 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ## Contacto
 
-- **Email**: tu-email@dominio.com
-- **GitHub**: [https://github.com/tuusuario](https://github.com/tuusuario)
+- **Email**: emilioperezarjona@gmail.com
+- **GitHub**: [https://github.com/3milioP](https://github.com/3milioP)
 
