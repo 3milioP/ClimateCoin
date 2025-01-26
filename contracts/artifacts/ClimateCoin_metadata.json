@@ -144,6 +144,19 @@
 				"anonymous": false,
 				"inputs": [
 					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newCompanyAddress",
+						"type": "address"
+					}
+				],
+				"name": "AddressUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
 						"indexed": true,
 						"internalType": "address",
 						"name": "account",
@@ -474,6 +487,29 @@
 			{
 				"inputs": [
 					{
+						"internalType": "uint256",
+						"name": "projectId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "burnClimateCoin",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "string",
 						"name": "projectName",
 						"type": "string"
@@ -696,6 +732,11 @@
 						"internalType": "uint256",
 						"name": "totalCredits",
 						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "companyAddress",
+						"type": "address"
 					}
 				],
 				"stateMutability": "view",
@@ -788,6 +829,24 @@
 					}
 				],
 				"name": "setApprovalForAll",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "projectId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "newCompanyAddress",
+						"type": "address"
+					}
+				],
+				"name": "setCompanyAddress",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -1237,11 +1296,11 @@
 			]
 		},
 		"contracts/ClimateCoin.sol": {
-			"keccak256": "0x661880ffcddcccabe281be274f3e6a632fdc0b8de67287946bb32f27160a8c28",
+			"keccak256": "0x393bd465887ccd069df9982540ddb4c5db58838a59ba979a40b49cf5bec76120",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://15670abe6f0d159a399a4a2ea1fb39d3ac9fa4b3f3eb5ca5e19bc182d7b0dd87",
-				"dweb:/ipfs/QmXQaM1chPDtfucKRmFrCnAnnh4T57ENDnriEQtb8xLeXp"
+				"bzz-raw://99e3631d4aca8f5ecfac9ddc1109a736086e67463eb1d8c932badbc877cd0dc3",
+				"dweb:/ipfs/QmctTMH54rvDnLH896YDRRUEFU596SYRfDhivRhdUY1ZNg"
 			]
 		}
 	},

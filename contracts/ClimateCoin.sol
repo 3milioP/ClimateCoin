@@ -47,6 +47,7 @@ contract ClimateCoin is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply, IERC11
         string name;
         string url;
         uint256 totalCredits;
+        address companyAddress;  // Dirección de la empresa asociada
     }
     //HashMap para asociar el struct de metadatos a un proyecto
     mapping(uint256 => ProjectMetadata) public projectDetails;
@@ -58,6 +59,7 @@ contract ClimateCoin is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply, IERC11
     event NFTExchanged(address indexed developer, uint256 projectId, uint256 creditsExchanged, uint256 fee);
     event URIUpdated(string newURI);
     event TokenBurned(address indexed burner, uint256 tokenId, uint256 amount);
+    event AddressUpdated(address newCompanyAddress);
 
     constructor(address initialOwner) ERC1155("") Ownable(initialOwner) {}
 
@@ -82,13 +84,13 @@ contract ClimateCoin is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply, IERC11
     string memory projectName,
     string memory url,
     uint256 totalCredits,
-    address companyAddress // Dirección de la empresa que recibirá el NFT, deberán proporcionarnos la dirección
+    address companyAddress // Dirección de la empresa que recibirá el NFT
     ) external onlyOwner {
     _projectIds.increment();
     uint256 newProjectId = _projectIds.current();
 
     // Registrar detalles del proyecto
-    projectDetails[newProjectId] = ProjectMetadata(projectName, url, totalCredits);
+    projectDetails[newProjectId] = ProjectMetadata(projectName, url, totalCredits, companyAddress);
 
     // Mintear NFT único para el proyecto, un id para un solo token. Esto hace un NFT único
     _mint(msg.sender, newProjectId, 1, ""); // NFT
@@ -97,7 +99,13 @@ contract ClimateCoin is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply, IERC11
     safeTransferFrom(msg.sender, companyAddress, newProjectId, 1, ""); // La empresa recibe el NFT
 
     emit ProjectCreated(newProjectId, projectName, url, totalCredits);
-}
+    }
+    // Función para modificar la dirección de la empresa asociada al proyecto
+    function setCompanyAddress(uint256 projectId, address newCompanyAddress) external onlyOwner {
+    require(projectDetails[projectId].companyAddress != address(0), "Proyecto no existe");
+    projectDetails[projectId].companyAddress = newCompanyAddress;
+    emit AddressUpdated(newCompanyAddress);
+    }
 
     function exchangeNFTForCredits(uint256 projectId) external {
     uint256 nftId = projectId;
@@ -127,6 +135,19 @@ contract ClimateCoin is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply, IERC11
     _mint(owner(), fungibleTokenId, fee, ""); // El owner recibe el fee
 
     emit NFTExchanged(msg.sender, projectId, creditsAfterFee, fee);
+    }   
+
+    // Función para quemar los ClimateCoins solo si la dirección es la de la empresa asociada
+    function burnClimateCoin(uint256 projectId, uint256 tokenId, uint256 amount) external {
+    address companyAddress = projectDetails[projectId].companyAddress;
+    // Verificar que la persona que llama a la función es la empresa asociada a ese proyecto
+    require(msg.sender == companyAddress, "Solo la empresa asociada puede quemar los ClimateCoins");
+
+    // Llamar al método _burn de ERC1155 para quemar los tokens
+    _burn(msg.sender, tokenId, amount);
+    
+    // Emitir un evento para registrar la quema
+    emit TokenBurned(msg.sender, tokenId, amount);
     }   
 
     // Actualizar fee
