@@ -252,6 +252,31 @@
 					{
 						"indexed": true,
 						"internalType": "address",
+						"name": "burner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "TokenBurned",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
 						"name": "operator",
 						"type": "address"
 					},
@@ -450,7 +475,7 @@
 				"inputs": [
 					{
 						"internalType": "string",
-						"name": "name",
+						"name": "projectName",
 						"type": "string"
 					},
 					{
@@ -462,6 +487,11 @@
 						"internalType": "uint256",
 						"name": "totalCredits",
 						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "companyAddress",
+						"type": "address"
 					}
 				],
 				"name": "createProject",
@@ -539,59 +569,94 @@
 				"type": "function"
 			},
 			{
-				"inputs": [
+				"inputs": [],
+				"name": "name",
+				"outputs": [
 					{
-						"internalType": "address",
-						"name": "account",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "id",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					},
-					{
-						"internalType": "bytes",
-						"name": "data",
-						"type": "bytes"
+						"internalType": "string",
+						"name": "",
+						"type": "string"
 					}
 				],
-				"name": "mint",
-				"outputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "pure",
 				"type": "function"
 			},
 			{
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "to",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "",
 						"type": "address"
 					},
 					{
 						"internalType": "uint256[]",
-						"name": "ids",
+						"name": "",
 						"type": "uint256[]"
 					},
 					{
 						"internalType": "uint256[]",
-						"name": "amounts",
+						"name": "",
 						"type": "uint256[]"
 					},
 					{
 						"internalType": "bytes",
-						"name": "data",
+						"name": "",
 						"type": "bytes"
 					}
 				],
-				"name": "mintBatch",
-				"outputs": [],
-				"stateMutability": "nonpayable",
+				"name": "onERC1155BatchReceived",
+				"outputs": [
+					{
+						"internalType": "bytes4",
+						"name": "",
+						"type": "bytes4"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bytes",
+						"name": "",
+						"type": "bytes"
+					}
+				],
+				"name": "onERC1155Received",
+				"outputs": [
+					{
+						"internalType": "bytes4",
+						"name": "",
+						"type": "bytes4"
+					}
+				],
+				"stateMutability": "pure",
 				"type": "function"
 			},
 			{
@@ -770,6 +835,19 @@
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "symbol",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "pure",
 				"type": "function"
 			},
 			{
@@ -974,7 +1052,11 @@
 		},
 		"userdoc": {
 			"kind": "user",
-			"methods": {},
+			"methods": {
+				"name()": {
+					"notice": "Función para obtener el nombre del token, como es un ERC-1155 lo hacemos así"
+				}
+			},
 			"version": 1
 		}
 	},
@@ -1155,11 +1237,11 @@
 			]
 		},
 		"contracts/ClimateCoin.sol": {
-			"keccak256": "0xf735ef19ce854ba99fdfffc6cdfb868fe26a1760bf2157bd9f03a6412ca70377",
+			"keccak256": "0x661880ffcddcccabe281be274f3e6a632fdc0b8de67287946bb32f27160a8c28",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://d1b8cda16806fede0ea6470d0be1f973ace47c77e84e62c3bf51181cec02a67d",
-				"dweb:/ipfs/QmYuMsYFEcuWVXQ5tAMyRXWp7GvMdKxTnWkFRStpb8sfWh"
+				"bzz-raw://15670abe6f0d159a399a4a2ea1fb39d3ac9fa4b3f3eb5ca5e19bc182d7b0dd87",
+				"dweb:/ipfs/QmXQaM1chPDtfucKRmFrCnAnnh4T57ENDnriEQtb8xLeXp"
 			]
 		}
 	},

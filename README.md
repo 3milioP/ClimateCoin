@@ -37,25 +37,6 @@ El contrato también utiliza extensiones de OpenZeppelin, tales como:
 - **`ERC1155Supply`**: Habilita el seguimiento de la oferta total de cada token.
 - **`Ownable`**: Asegura que solo el propietario del contrato pueda ejecutar ciertas funciones (como mintear tokens y actualizar la fee).
 
-## Instalación
-
-1. **Clonar el repositorio**:
-
-    ```bash
-    git clone https://github.com/tuusuario/climatecoin.git
-    cd climatecoin
-    ```
-
-2. **Instalar dependencias**:
-
-    ```bash
-    npm install
-    ```
-
-3. **Desplegar el contrato**:
-   
-   Usa herramientas como **Hardhat** o **Truffle** para desplegar el contrato en una red de prueba.
-
 ## Ejemplo de uso
 
 1. **Crear un proyecto de créditos de carbono**:
@@ -86,18 +67,6 @@ El contrato emite los siguientes eventos para facilitar la trazabilidad:
 
 - **Verificación de Propietario**: Solo el propietario del contrato puede mintear tokens y cambiar la configuración (por ejemplo, la fee).
 - **Verificación de Saldo de NFTs**: Al intercambiar un NFT, se verifica que el usuario realmente posea el NFT antes de proceder.
-
-## Contribuir
-
-Si deseas contribuir al proyecto, por favor sigue estos pasos:
-
-1. Haz un fork del repositorio.
-2. Crea una nueva rama (`git checkout -b feature-nueva-funcion`).
-3. Realiza tus cambios y haz commit de ellos (`git commit -am 'Añadir nueva función'`).
-4. Push a tu rama (`git push origin feature-nueva-funcion`).
-5. Abre un Pull Request.
-
-## Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
 

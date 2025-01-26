@@ -1,20 +1,46 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
+//Se importan los interfaces de la librería openzeppelin que son necesarios para el contrato
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol"; // Importamos la interfaz
+//Esto de counters no lo habíamos dado en clase, pero me ha parecido bien incluirlo para la identificación de cada NFT
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 
-contract ClimateCoin is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
+//Aplicamos la interfaz al contrato
+contract ClimateCoin is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply, IERC1155Receiver {
     using Counters for Counters.Counter;
 
     // Contador para IDs de proyectos
-    Counters.Counter private _projectIds;
+    Counters.Counter private _projectIds; //Según leí, el "guión bajo" antes del nombre indica que es variable interna
 
     // Fee en porcentaje
     uint256 public feePercentage = 2;
+
+    // las siguientes dos funciones son obligatorias debido a la implementación de la interfaz IERC1155Reciever
+    // que prepara nuestro contrato para que sea capaz de recibir tokens 1155
+    function onERC1155Received(
+    address /*operator*/,
+    address /*from*/,
+    uint256 /*id*/,
+    uint256 /*value*/,
+    bytes memory /*data*/
+    ) public pure override returns (bytes4) {
+    return this.onERC1155Received.selector;
+    }
+    // Se comentan las variables porque daba un warning
+    function onERC1155BatchReceived(
+    address /*operator*/,
+    address /*from*/,
+    uint256[] memory /*ids*/,
+    uint256[] memory /*values*/,
+    bytes memory /*data*/
+    ) public pure override returns (bytes4) {
+    return this.onERC1155BatchReceived.selector;
+    }
 
     // Estructura para metadatos de proyectos
     struct ProjectMetadata {
@@ -22,17 +48,30 @@ contract ClimateCoin is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
         string url;
         uint256 totalCredits;
     }
-
+    //HashMap para asociar el struct de metadatos a un proyecto
     mapping(uint256 => ProjectMetadata) public projectDetails;
 
-    // Eventos
+    // Eventos útiles para facilitar su trazabilidad
+    //El uso de "indexed" tampoco lo hemos visto aún en las clases, tal como he leído
+    // facilita el reastreo de eventos ya que quedan indexados en logs de la blockchain fácilmente accesibles desde exploradores de bloques
     event ProjectCreated(uint256 indexed projectId, string name, string url, uint256 totalCredits);
     event NFTExchanged(address indexed developer, uint256 projectId, uint256 creditsExchanged, uint256 fee);
     event URIUpdated(string newURI);
+    event TokenBurned(address indexed burner, uint256 tokenId, uint256 amount);
 
     constructor(address initialOwner) ERC1155("") Ownable(initialOwner) {}
 
-    // Función para establecer URI
+    /// Función para obtener el nombre del token, como es un ERC-1155 lo hacemos así
+    function name() public pure returns (string memory) {
+        return "CCO"; // El nombre del token es "CCO"
+    }
+
+    // Función para obtener el símbolo del token
+    function symbol() public pure returns (string memory) {
+        return "CCO"; // El símbolo del token es "CCO"
+    }
+
+    // Función para establecer URI, solo puede actualizar el dueño del proyecto
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
         emit URIUpdated(newuri);
@@ -40,69 +79,55 @@ contract ClimateCoin is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
 
     // Función para crear un proyecto (minteo único de NFT + fungibles)
     function createProject(
-        string memory name,
-        string memory url,
-        uint256 totalCredits
+    string memory projectName,
+    string memory url,
+    uint256 totalCredits,
+    address companyAddress // Dirección de la empresa que recibirá el NFT, deberán proporcionarnos la dirección
     ) external onlyOwner {
-        _projectIds.increment();
-        uint256 newProjectId = _projectIds.current();
+    _projectIds.increment();
+    uint256 newProjectId = _projectIds.current();
 
-        // Registrar detalles del proyecto
-        projectDetails[newProjectId] = ProjectMetadata(name, url, totalCredits);
+    // Registrar detalles del proyecto
+    projectDetails[newProjectId] = ProjectMetadata(projectName, url, totalCredits);
 
-        // Mintear NFT único para el proyecto
-        _mint(msg.sender, newProjectId, 1, ""); // NFT
+    // Mintear NFT único para el proyecto, un id para un solo token. Esto hace un NFT único
+    _mint(msg.sender, newProjectId, 1, ""); // NFT
 
-        // Mintear créditos fungibles para el proyecto
-        _mint(msg.sender, newProjectId + 1000, totalCredits, ""); // Créditos fungibles
+    // Transferir el NFT a la dirección de la empresa
+    safeTransferFrom(msg.sender, companyAddress, newProjectId, 1, ""); // La empresa recibe el NFT
 
-        emit ProjectCreated(newProjectId, name, url, totalCredits);
-    }
+    emit ProjectCreated(newProjectId, projectName, url, totalCredits);
+}
 
-    // Minteo manual
-    function mint(
-        address account,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) public onlyOwner {
-        _mint(account, id, amount, data);
-    }
-
-    // Minteo en lote
-    function mintBatch(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) public onlyOwner {
-        _mintBatch(to, ids, amounts, data);
-    }
-
-    // Intercambio de NFT por créditos ClimateCoin
     function exchangeNFTForCredits(uint256 projectId) external {
-        uint256 nftId = projectId;
-        uint256 fungibleTokenId = projectId + 1000;
+    uint256 nftId = projectId;
+    uint256 fungibleTokenId = projectId + 1000; //Diferenciamos el ID del NFT del de los tokens
 
-        // Verificar que el usuario tiene el NFT
-        require(balanceOf(msg.sender, nftId) > 0, "You do not own this NFT");
+    // Verificar que el usuario tiene el NFT
+    require(balanceOf(msg.sender, nftId) > 0, "No eres el propietario del NFT");
 
-        // Obtener créditos totales del proyecto
-        uint256 creditsToMint = projectDetails[projectId].totalCredits;
+    // Obtener créditos totales del proyecto
+    uint256 creditsToMint = projectDetails[projectId].totalCredits;
 
-        // Calcular fee
-        uint256 fee = (creditsToMint * feePercentage) / 100;
-        uint256 creditsAfterFee = creditsToMint - fee;
+    // Calcular fee
+    uint256 fee = (creditsToMint * feePercentage) / 100;
+    uint256 creditsAfterFee = creditsToMint - fee;
 
-        // Transferir el NFT al contrato
-        safeTransferFrom(msg.sender, address(this), nftId, 1, "");
+    // Transferir el NFT al contrato (esto "quema" el NFT, ya que lo transfiere al contrato)
+    safeTransferFrom(msg.sender, address(this), nftId, 1, ""); // El contrato recibe el NFT
 
-        // Transferir créditos al usuario y fee al owner
-        _mint(msg.sender, fungibleTokenId, creditsAfterFee, "");
-        _mint(owner(), fungibleTokenId, fee, "");
+    // Quemar el NFT
+    _burn(address(this), nftId, 1); // El contrato quema el NFT recibido
 
-        emit NFTExchanged(msg.sender, projectId, creditsAfterFee, fee);
-    }
+    //Los tokens se mintean al momento
+    // Mintear los ClimateCoins (tokens fungibles) para el desarrollador
+    _mint(msg.sender, fungibleTokenId, creditsAfterFee, ""); // El desarrollador recibe los ClimateCoins
+
+    // Mintear el fee y enviarlo al owner del contrato
+    _mint(owner(), fungibleTokenId, fee, ""); // El owner recibe el fee
+
+    emit NFTExchanged(msg.sender, projectId, creditsAfterFee, fee);
+    }   
 
     // Actualizar fee
     function setFeePercentage(uint256 newFeePercentage) external onlyOwner {
